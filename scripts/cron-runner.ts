@@ -1,6 +1,6 @@
 import 'dotenv/config';
-import { config } from './config/configuration.js';
-import { startCron } from './cron/scheduler.js';
+import { config } from '../src/config/configuration.js';
+import { startCron } from '../src/cron/scheduler.js';
 
 if (!config.cron.enabled) {
   console.log('Cron is disabled (CRON_ENABLED=false). Exiting.');

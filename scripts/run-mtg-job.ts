@@ -1,9 +1,9 @@
 /**
  * One-off script to run the MTG cards update job (for testing).
- * Usage: npm run cron:mtg  or  npx tsx src/run-mtg-job.ts
+ * Usage: npm run cron:mtg  or  npx tsx scripts/run-mtg-job.ts
  */
 import 'dotenv/config';
-import { runUpdateMtgCardsJob } from './cron/update-mtg-cards.job.js';
+import { runUpdateMtgCardsJob } from '../src/cron/update-mtg-cards.job.js';
 
 runUpdateMtgCardsJob()
   .then(() => {

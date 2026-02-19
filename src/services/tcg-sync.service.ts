@@ -31,14 +31,49 @@ function formatErr(err: unknown): string {
   return String(err);
 }
 
-/** Build product row for upsert; omit MTG-only columns (oracle_text, power, toughness) for Pokemon table. */
+/** Build product row for upsert. Pokemon table has different columns (card_type, hp, stage, etc.). */
 function productRowForTable(
   product: TransformedProduct,
   table: string
 ): Record<string, unknown> {
   if (table === 'tcg_pokemon_products') {
-    const { oracle_text, power, toughness, ...rest } = product;
-    return rest as Record<string, unknown>;
+    const ext = product.extended_data ?? [];
+    const map: Record<string, string> = {};
+    ext.forEach((item) => {
+      map[item.name] = item.value;
+    });
+    const parseNum = (s: string | undefined): number | null => {
+      if (s == null || s === '') return null;
+      const n = parseInt(s.replace(/\D/g, ''), 10);
+      return Number.isNaN(n) ? null : n;
+    };
+    return {
+      product_id: product.product_id,
+      name: product.name,
+      clean_name: product.clean_name,
+      image_url: product.image_url || null,
+      url: product.url || null,
+      category_id: product.category_id,
+      group_id: product.group_id,
+      image_count: product.image_count,
+      is_presale: product.is_presale,
+      presale_released_on: product.presale_released_on ?? null,
+      presale_note: product.presale_note ?? null,
+      card_number: product.card_number ?? null,
+      rarity: product.rarity ?? null,
+      card_type: map['Type'] ?? map['Card Type'] ?? product.sub_type ?? null,
+      hp: parseNum(map['HP']),
+      stage: map['Stage'] ?? null,
+      weakness: map['Weakness'] ?? null,
+      resistance: map['Resistance'] ?? null,
+      retreat_cost: parseNum(map['Retreat Cost']),
+      card_text: map['Card Text'] ?? map['CardText'] ?? null,
+      attacks: null,
+      extended_data: ext.length ? ext : [],
+      modified_on: product.modified_on ?? null,
+      last_synced_at: product.last_synced_at,
+      updated_at: new Date().toISOString(),
+    };
   }
   return product as Record<string, unknown>;
 }
@@ -298,7 +333,6 @@ async function logSyncRun(stats: SyncStats): Promise<void> {
       endpoints_processed: stats.groupsProcessed,
       total_items: stats.totalItems,
       products_upserted: stats.productsUpserted,
-      prices_upserted: stats.pricesUpserted,
       errors: stats.errors,
       duration_ms: stats.durationMs,
     });

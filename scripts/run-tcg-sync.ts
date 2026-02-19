@@ -1,9 +1,9 @@
 /**
  * Run the TCG daily sync (MTG + Pokemon products and prices -> tcg_mtg_* / tcg_pokemon_* tables).
- * Usage: npm run tcg:sync  or  npm run cron:tcg  or  npx tsx src/run-tcg-sync.ts
+ * Usage: npm run tcg:sync  or  npm run cron:tcg  or  npx tsx scripts/run-tcg-sync.ts
  */
 import 'dotenv/config';
-import { syncTCGData } from './services/tcg-sync.service.js';
+import { syncTCGData } from '../src/services/tcg-sync.service.js';
 
 console.log('Running TCG daily sync (MTG + Pokemon)...');
 

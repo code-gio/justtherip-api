@@ -113,7 +113,22 @@ Lists categories to sync (by name) and their group counts.
 ## Logging and Observability
 
 - **Console:** Start/end time, groups processed, products and prices upserted, error count. Per-batch and per-group errors are logged with readable messages (Supabase/Postgres errors are formatted, not `[object Object]`).
-- **Persisted:** Each run writes a row to `tcg_sync_logs` with `run_at`, `endpoints_processed` (groups), `total_items`, `products_upserted`, `prices_upserted`, `errors`, `duration_ms`.
+- **Persisted:** Each run writes a row to `tcg_sync_logs` with `run_at`, `endpoints_processed` (groups), `total_items`, `products_upserted`, `errors`, `duration_ms`. Table schema:
+
+  ```sql
+  create table public.tcg_sync_logs (
+    id bigserial not null,
+    run_at timestamp with time zone not null,
+    endpoints_processed integer null,
+    total_items integer null,
+    products_upserted integer null,
+    errors jsonb null,
+    duration_ms integer null,
+    created_at timestamp with time zone null default now(),
+    constraint tcg_sync_logs_pkey primary key (id)
+  );
+  create index idx_tcg_sync_logs_run_at on public.tcg_sync_logs using btree (run_at desc);
+  ```
 
 ---
 

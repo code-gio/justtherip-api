@@ -1,7 +1,7 @@
 /**
  * Test the TCG catalog service (categories by name, groups, product endpoints).
  * Does not call Supabase or run the full sync.
- * Usage: npm run tcg:catalog  or  npx tsx src/run-tcg-catalog.ts
+ * Usage: npm run tcg:catalog  or  npx tsx scripts/run-tcg-catalog.ts
  */
 import 'dotenv/config';
 import {
@@ -9,7 +9,7 @@ import {
   getCategoriesToSync,
   getGroups,
   getProductEndpoints,
-} from './services/tcg-catalog.service.js';
+} from '../src/services/tcg-catalog.service.js';
 
 async function main() {
   console.log('--- TCG Catalog test ---\n');

@@ -8,11 +8,11 @@
     "start": "node dist/src/server.js",
     "dev": "tsx src/server.ts",
     "dev:watch": "nodemon --exec tsx src/server.ts",
-    "cron": "tsx src/cron-runner.ts",
-    "cron:mtg": "tsx src/run-mtg-job.ts",
-    "cron:tcg": "tsx src/run-tcg-sync.ts",
-    "tcg:sync": "tsx src/run-tcg-sync.ts",
-    "tcg:catalog": "tsx src/run-tcg-catalog.ts"
+    "cron": "tsx scripts/cron-runner.ts",
+    "cron:mtg": "tsx scripts/run-mtg-job.ts",
+    "cron:tcg": "tsx scripts/run-tcg-sync.ts",
+    "tcg:sync": "tsx scripts/run-tcg-sync.ts",
+    "tcg:catalog": "tsx scripts/run-tcg-catalog.ts"
   },
   "engines": {
     "node": ">=18"
