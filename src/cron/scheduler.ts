@@ -1,15 +1,15 @@
 import cron from 'node-cron';
 import { config } from '../config/configuration.js';
-import { runExampleJob } from './example.job.js';
+import { runTcgDailyJob } from './tcg-daily.job.js';
 import { runUpdateMtgCardsJob } from './update-mtg-cards.job.js';
 
 export function startCron(): void {
   if (!config.cron.enabled) return;
 
   cron.schedule(
-    '0 * * * *',
+    config.cron.mtgCardsSchedule,
     () => {
-      runExampleJob().catch((err) => {
+      runUpdateMtgCardsJob().catch((err) => {
         console.error('[cron] Unhandled job error:', err);
       });
     },
@@ -17,10 +17,10 @@ export function startCron(): void {
   );
 
   cron.schedule(
-    config.cron.mtgCardsSchedule,
+    config.cron.tcgDailySchedule,
     () => {
-      runUpdateMtgCardsJob().catch((err) => {
-        console.error('[cron] Unhandled job error:', err);
+      runTcgDailyJob().catch((err) => {
+        console.error('[cron] Unhandled tcg-daily.job error:', err);
       });
     },
     { timezone: config.cron.timezone }

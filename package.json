@@ -9,13 +9,17 @@
     "dev": "tsx src/server.ts",
     "dev:watch": "nodemon --exec tsx src/server.ts",
     "cron": "tsx src/cron-runner.ts",
-    "cron:mtg": "tsx src/run-mtg-job.ts"
+    "cron:mtg": "tsx src/run-mtg-job.ts",
+    "cron:tcg": "tsx src/run-tcg-sync.ts",
+    "tcg:sync": "tsx src/run-tcg-sync.ts",
+    "tcg:catalog": "tsx src/run-tcg-catalog.ts"
   },
   "engines": {
     "node": ">=18"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.95.2",
+    "axios": "^1.13.5",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
