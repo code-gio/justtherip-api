@@ -54,7 +54,14 @@ export const config = {
   supabase: {
     url: process.env.PUBLIC_SUPABASE_URL ?? '',
     serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? '',
+    jwtSecret: process.env.SUPABASE_JWT_SECRET ?? '',
   },
+  stripe: {
+    secretKey: process.env.STRIPE_SECRET_KEY ?? '',
+    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? '',
+    publishableKey: process.env.STRIPE_PUBLISHABLE_KEY ?? '',
+  },
+  cronApiSecret: process.env.CRON_API_SECRET ?? '',
   swagger: {
     enabled: process.env.SWAGGER_ENABLED !== 'false',
     path: process.env.SWAGGER_PATH ?? '/api-docs',

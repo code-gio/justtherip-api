@@ -75,7 +75,7 @@ function productRowForTable(
       updated_at: new Date().toISOString(),
     };
   }
-  return product as Record<string, unknown>;
+  return product as unknown as Record<string, unknown>;
 }
 
 async function upsertProductsBatch(

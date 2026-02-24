@@ -6,13 +6,21 @@ import { config } from './config/configuration.js';
 import routes from './routes/index.js';
 import { requestId, errorHandler, notFound } from './middleware/index.js';
 import { openApiSpec } from '../swagger/openapi.js';
+import { stripeWebhook } from './controllers/stripe/webhook.controller.js';
 
 const app = express();
 
 app.use(cors());
-app.use(express.json());
 app.use(requestId);
 
+// Stripe webhook must receive raw body for signature verification
+app.use(
+  config.apiBasePath + '/stripe/webhook',
+  express.raw({ type: 'application/json' }),
+  stripeWebhook
+);
+
+app.use(express.json());
 app.use(config.apiBasePath, routes);
 
 if (config.swagger.enabled) {
