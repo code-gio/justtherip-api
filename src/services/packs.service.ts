@@ -59,6 +59,7 @@ export async function getActivePacksWithTopCards(
     .from('packs')
     .select('id, name, image_url, rip_cost, game_code')
     .eq('is_active', true)
+    .eq("is_archive", false)
     .order('created_at', { ascending: false });
 
   if (packsError) {

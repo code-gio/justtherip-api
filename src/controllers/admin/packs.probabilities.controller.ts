@@ -7,7 +7,7 @@ export async function getPackProbabilities(
   next: NextFunction
 ): Promise<void> {
   try {
-    const packId = req.params.packId;
+    const packId = req.params.packId ?? req.params.id;
     if (!packId) {
       res.status(400).json({ error: 'packId is required' });
       return;

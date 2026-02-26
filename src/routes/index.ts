@@ -10,6 +10,7 @@ import stripeRoutes from './stripe.routes.js';
 import mediaRoutes from './media.routes.js';
 import adminRoutes from './admin/index.js';
 import cronRoutes from './cron.routes.js';
+import publicRoutes from './public.routes.js';
 
 const router = Router();
 
@@ -24,5 +25,6 @@ router.use('/stripe', stripeRoutes);
 router.use('/media', mediaRoutes);
 router.use('/admin', adminRoutes);
 router.use('/cron', cronRoutes);
+router.use('/public', publicRoutes);
 
 export default router;

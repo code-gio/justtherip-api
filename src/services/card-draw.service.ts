@@ -1,4 +1,5 @@
 import { getSupabaseAdmin } from '../lib/supabase.js';
+import { getSystemConfigValue } from './system-config.service.js';
 
 export interface DrawnCard {
   card_uuid: string;
@@ -19,12 +20,18 @@ export interface DrawCardResult {
 }
 
 /** Sell-back rate (e.g. 85% of card value as Rips). */
-const SELLBACK_RATE = 0.85;
+// const SELLBACK_RATE = 0.85;
 
 /**
  * Calculate sell-back value in Rips (85% of card value in cents, as Rips).
  */
-export function calculateSellbackValue(cardValueCents: number): number {
+export async function calculateSellbackValue(cardValueCents: number): Promise<number> {
+  const sellbackRate = await getSystemConfigValue('sellback_rate');
+  console.log('sellbackRate', sellbackRate);
+  if (sellbackRate == null) {
+    return 0;
+  }
+  const SELLBACK_RATE = Number(sellbackRate);
   return Math.floor(cardValueCents * SELLBACK_RATE / 100);
 }
 

@@ -31,6 +31,40 @@ export const openApiSpec = {
         },
       },
     },
+    '/public/landing': {
+      get: {
+        tags: ['Public'],
+        summary: 'Public landing page data',
+        description:
+          'Returns all data needed for the public marketing landing page: games, topPacks (by openings), recentPulls, rarePulls (mythic + rare), and packsByGame. No authentication required. Pulls are filtered by carousel_min_value_usd from system config.',
+        security: [],
+        parameters: [
+          { in: 'query', name: 'topPacksLimit', schema: { type: 'integer', default: 4 }, description: 'Number of top packs by openings (max 10)' },
+          { in: 'query', name: 'recentPullsLimit', schema: { type: 'integer', default: 20 }, description: 'Number of recent pulls (max 50)' },
+          { in: 'query', name: 'rarePullsLimit', schema: { type: 'integer', default: 20 }, description: 'Number of rare + mythic pulls (max 50)' },
+          { in: 'query', name: 'topCardsPerPack', schema: { type: 'integer', default: 3 }, description: 'Top cards per pack in topPacks (max 5)' },
+        ],
+        responses: {
+          '200': {
+            description: 'Object with games, topPacks, recentPulls, rarePulls, packsByGame',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    games: { type: 'array', description: 'All games (id, name, code)' },
+                    topPacks: { type: 'array', description: 'Top packs by opening count with topCards' },
+                    recentPulls: { type: 'array', description: 'Recent inventory pulls with profile (signed avatar)' },
+                    rarePulls: { type: 'array', description: 'Mythic and rare pulls with profile' },
+                    packsByGame: { type: 'array', description: 'Count of active packs per game_code' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     '/rips/balance': {
       get: {
         tags: ['Rips'],
@@ -203,8 +237,26 @@ export const openApiSpec = {
     '/admin/cards/search': {
       get: { tags: ['Admin'], summary: 'Search cards (admin)', security: [{ bearerAuth: [] }], parameters: [{ in: 'query', name: 'game_code', schema: { type: 'string' } }, { in: 'query', name: 'search', schema: { type: 'string' } }, { in: 'query', name: 'page', schema: { type: 'integer' } }], responses: { '200': { description: 'Cards' }, '401': { description: 'Unauthorized' }, '403': { description: 'Forbidden' } } },
     },
-    '/admin/packs/{packId}/probabilities': {
-      get: { tags: ['Admin'], summary: 'Pack card probabilities', security: [{ bearerAuth: [] }], parameters: [{ in: 'path', name: 'packId', required: true, schema: { type: 'string' } }], responses: { '200': { description: 'Probabilities' }, '401': { description: 'Unauthorized' }, '403': { description: 'Forbidden' } } },
+    '/admin/packs': {
+      get: { tags: ['Admin'], summary: 'List packs (admin)', description: 'Packs with is_archive = false and game info', security: [{ bearerAuth: [] }], responses: { '200': { description: 'packs array' }, '401': { description: 'Unauthorized' }, '403': { description: 'Forbidden' } } },
+      post: { tags: ['Admin'], summary: 'Create pack', description: 'Create draft pack. Body: name, slug, game_code', security: [{ bearerAuth: [] }], requestBody: { content: { 'application/json': { schema: { type: 'object', required: ['name', 'slug', 'game_code'], properties: { name: { type: 'string' }, slug: { type: 'string' }, game_code: { type: 'string' } } } } } }, responses: { '201': { description: 'packId' }, '400': { description: 'Missing fields' }, '401': { description: 'Unauthorized' }, '403': { description: 'Forbidden' } } },
+    },
+    '/admin/packs/{id}': {
+      get: { tags: ['Admin'], summary: 'Get pack by id (admin)', description: 'Pack with pack_cards and card data. is_archive = false only', security: [{ bearerAuth: [] }], parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'string' } }], responses: { '200': { description: 'pack, packCards' }, '404': { description: 'Not found' }, '401': { description: 'Unauthorized' }, '403': { description: 'Forbidden' } } },
+      put: { tags: ['Admin'], summary: 'Save pack', description: 'Update pack and replace pack_cards. Does not change is_active', security: [{ bearerAuth: [] }], parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'string' } }], requestBody: { content: { 'application/json': { schema: { type: 'object', required: ['name', 'slug', 'game_code'], properties: { name: { type: 'string' }, slug: { type: 'string' }, description: { type: 'string' }, image_url: { type: 'string' }, game_code: { type: 'string' }, rip_cost: { type: 'number' }, pack_cards: { type: 'array', items: { type: 'object', properties: { card_uuid: { type: 'string' }, market_value: { type: 'number' }, is_foil: { type: 'boolean' }, condition: { type: 'string' } } } } } } } } }, responses: { '200': { description: 'success' }, '400': { description: 'Missing fields' }, '401': { description: 'Unauthorized' }, '403': { description: 'Forbidden' } } },
+      delete: { tags: ['Admin'], summary: 'Delete pack', description: 'Delete pack. If has openings, archive (is_archive = true) instead', security: [{ bearerAuth: [] }], parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'string' } }], responses: { '200': { description: 'deleted, or archived + message' }, '401': { description: 'Unauthorized' }, '403': { description: 'Forbidden' } } },
+    },
+    '/admin/packs/{id}/toggle-active': {
+      patch: { tags: ['Admin'], summary: 'Toggle pack active', description: 'Activate or deactivate pack (is_active toggle)', security: [{ bearerAuth: [] }], parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'string' } }], responses: { '200': { description: 'success, is_active' }, '404': { description: 'Pack not found' }, '401': { description: 'Unauthorized' }, '403': { description: 'Forbidden' } } },
+    },
+    '/admin/packs/{id}/publish': {
+      post: { tags: ['Admin'], summary: 'Publish pack', description: 'Save pack and set is_active = true', security: [{ bearerAuth: [] }], parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'string' } }], requestBody: { content: { 'application/json': { schema: { type: 'object', required: ['name', 'slug', 'game_code'], properties: { name: { type: 'string' }, slug: { type: 'string' }, description: { type: 'string' }, image_url: { type: 'string' }, game_code: { type: 'string' }, rip_cost: { type: 'number' }, pack_cards: { type: 'array', items: { type: 'object' } } } } } } }, responses: { '200': { description: 'success' }, '400': { description: 'Missing fields' }, '401': { description: 'Unauthorized' }, '403': { description: 'Forbidden' } } },
+    },
+    '/admin/packs/{id}/unpublish': {
+      post: { tags: ['Admin'], summary: 'Unpublish pack', description: 'Set is_active = false', security: [{ bearerAuth: [] }], parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'string' } }], responses: { '200': { description: 'success' }, '401': { description: 'Unauthorized' }, '403': { description: 'Forbidden' } } },
+    },
+    '/admin/packs/{id}/probabilities': {
+      get: { tags: ['Admin'], summary: 'Pack card probabilities', security: [{ bearerAuth: [] }], parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'string' } }], responses: { '200': { description: 'Probabilities' }, '401': { description: 'Unauthorized' }, '403': { description: 'Forbidden' } } },
     },
     '/admin/simulator/packs/{packId}': {
       get: { tags: ['Admin'], summary: 'Simulator pack cards', security: [{ bearerAuth: [] }], parameters: [{ in: 'path', name: 'packId', required: true, schema: { type: 'string' } }], responses: { '200': { description: 'Cards with probabilities' }, '401': { description: 'Unauthorized' }, '403': { description: 'Forbidden' } } },
@@ -228,6 +280,7 @@ export const openApiSpec = {
   },
   tags: [
     { name: 'Health', description: 'Health check' },
+    { name: 'Public', description: 'Public landing and homepage data (no auth)' },
     { name: 'Rips', description: 'Rip balance and bundles' },
     { name: 'Cards', description: 'Card search and verify' },
     { name: 'Packs', description: 'Pack opening' },
