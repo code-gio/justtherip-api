@@ -47,7 +47,7 @@ export async function sellCard(
       return;
     }
     const c = card as { card_value_cents?: number; id: string };
-    const sellbackRips = calculateSellbackValue(c.card_value_cents ?? 0);
+    const sellbackRips = await calculateSellbackValue(c.card_value_cents ?? 0);
     const addResult = await addRips(userId, sellbackRips, {
       card_id: c.id,
       card_value_cents: c.card_value_cents,

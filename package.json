@@ -15,7 +15,7 @@
     "tcg:catalog": "tsx scripts/run-tcg-catalog.ts"
   },
   "engines": {
-    "node": ">=18"
+    "node": "22.x"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.95.2",
